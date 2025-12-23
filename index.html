@@ -445,6 +445,7 @@
         _loadDictionary() {
             return {
                 en: {
+                    meta: { title: "The Second Seat | Hunger is cured by food. Isolation by company." },
                     brandName: "The Second Seat",
                     nav: { mission: "Mission", find: "Find a Seat", register: "For Restaurants" },
                     hero: {
@@ -506,6 +507,7 @@
                     dynamic: { full: "Full", open: "Open Seats", left: "Left", daily: "Daily 'Second Seats'", directions: "Get Directions" }
                 },
                 de: {
+                    meta: { title: "Der Zweite Stuhl | Hunger stillt man mit Essen. Einsamkeit mit Gesellschaft." },
                     brandName: "Der Zweite Stuhl",
                     nav: { mission: "Mission", find: "Platz finden", register: "Für Restaurants" },
                     hero: {
@@ -567,6 +569,7 @@
                     dynamic: { full: "Belegt", open: "Plätze frei", left: "Verfügbar", daily: "Tägliche 'Zweite Stühle'", directions: "Route planen" }
                 },
                 tr: {
+                    meta: { title: "İkinci Sandalye | Açlığın ilacı yemektir. Yalnızlığın ilacı muhabbettir." },
                     brandName: "İkinci Sandalye",
                     nav: { mission: "Misyon", find: "Yer Bul", register: "Restoranlar İçin" },
                     hero: {
@@ -578,8 +581,8 @@
                     manifesto: {
                         label: "Vizyonumuz",
                         title: "Bir Yemekten Fazlası. Bir Hareket.",
-                        p1: "Yardımseverlik genellikle yukarıdan aşağıyadır—bir sadaka verip uzaklaşmak gibi.",
-                        p2: "dayanışmadır. Biz aynı hizada, aynı sofradayız.",
+                        p1: "Geleneksel yardım anlayışı genelde dikey, yani üstten aşağı bir ilişkidir; bir tabağa para bırakıp uzaklaşmak gibi.",
+                        p2: "ise dayanışmayı esas alır. Bu, eşitler arası, göz hizasında yatay bir ilişkidir.",
                         p3: "Restoranlarla işbirliği yaparak boş masaları haysiyetli bir paylaşıma dönüştürüyoruz. İhtiyaç sahibi bir misafiri getirdiğinde, sen kendi hesabını ödersin. Restoran, sözünü tutarak misafirini ağırlar. İkiniz de tok kalkarsınız.",
                         quote: "Sofralar, sahip olduklarımızla değil, paylaştıklarımızla tanımlandığımız tek yerdir."
                     },
@@ -846,6 +849,12 @@
                     }
                 }
             });
+
+            // Update Document Title
+            const title = i18n.t('meta.title');
+            if (title && title !== 'meta.title') {
+                document.title = title;
+            }
         }
     }
 
