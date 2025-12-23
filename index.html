@@ -937,9 +937,17 @@
             container.register('repo', new RestaurantService());
 
             // ---------------------------------------------------------
-            // AUTO-LANGUAGE DETECTION LOGIC
+            // AUTO-LANGUAGE DETECTION LOGIC (Domain + Browser)
             // ---------------------------------------------------------
             const detectUserLanguage = () => {
+                const hostname = window.location.hostname;
+
+                // 1. Domain-based detection
+                if (hostname.includes('ikincisandalye.org')) return 'tr';
+                if (hostname.includes('derzweitestuhl.org')) return 'de';
+                if (hostname.includes('thesecondstool.org')) return 'en';
+
+                // 2. Browser-based fallback
                 // Get browser language (e.g., "tr-TR", "de", "en-US")
                 const browserLang = navigator.language || navigator.userLanguage; 
                 const shortCode = browserLang.split('-')[0]; // "tr-TR" -> "tr"
