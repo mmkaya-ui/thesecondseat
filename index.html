@@ -374,7 +374,7 @@
                                 </div>
                                 <div class="flex justify-between">
                                     <span class="text-gray-600">Impact Score</span>
-                                    <span class="font-bold text-terracotta">124 Meals</span>
+                                    <span class="font-bold text-terracotta" id="dash-impact-score">124 Meals</span>
                                 </div>
                             </div>
                         </div>
@@ -410,7 +410,8 @@
 
     <!-- SUCCESS MODAL -->
     <div id="successModal" class="fixed inset-0 z-[60] hidden">
-        <div class="absolute inset-0 bg-charcoal/80 backdrop-blur-sm js-close-modal"></div>
+        <!-- Optimized Backdrop (Removed Blur) -->
+        <div class="absolute inset-0 bg-charcoal/95 js-close-modal"></div>
         <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full text-center">
             <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
                 <i data-lucide="check" class="w-8 h-8 text-green-600"></i>
@@ -426,7 +427,8 @@
 
     <!-- LOGIN MODAL -->
     <div id="loginModal" class="fixed inset-0 z-[60] hidden">
-        <div class="absolute inset-0 bg-charcoal/80 backdrop-blur-sm js-close-login"></div>
+        <!-- Optimized Backdrop: Removed 'backdrop-blur-sm' for better performance on input focus -->
+        <div class="absolute inset-0 bg-charcoal/95 js-close-login"></div>
         <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full">
             <div class="flex justify-between items-center mb-6">
                 <h3 class="font-serif text-2xl font-bold text-charcoal">Restaurant Login</h3>
@@ -500,6 +502,7 @@
      * @property {string} type - Breakfast, Lunch, Dinner
      * @property {number} capacity
      * @property {number} maxCapacity
+     * @property {number} impactScore
      * @property {string} image
      */
 
@@ -794,7 +797,7 @@
                     },
                     dash: { capacity: "Anlık Kapasite Durumu", guestBtn: "Misafir Geldi (Kullan)", status: "Canlı Durum" },
                     footer: { tagline: "Duvar değil, sofra kuruyoruz.", conduct: "Davranış Kuralları", safety: "Güvenlik İlkeleri", contact: "İletişim" },
-                    modal: { title: "Masa Hazır.", body: "Sessiz bir devrime katıldın. Kapasiteni paylaşarak sadece yemek vermiyorsun; kamusal alanı geri kazanıyorsun.", footer: "Doğrulama ekibimiz 24 saat içinde verilen numarayı arayacaktır.", btn: "Ana Sayfaya Dön" },
+                    modal: { title: "Masa Hazır.", body: "Sessiz bir devrime katıldın. Kapasiteni paylaşarak sadece yemek vermiyorsun; kamusal alanı geri kazanıyorsun.", footer: "Doğrulama ekibimiz24 saat içinde verilen numarayı arayacaktır.", btn: "Ana Sayfaya Dön" },
                     dynamic: { full: "Dolu", open: "Yer Var", left: "Kaldı", daily: "Günlük 'İkinci Sandalye'", directions: "Yol Tarifi Al" }
                 }
             };
@@ -847,13 +850,36 @@
             return null;
         }
 
+        /**
+         * Records a guest arrival: decreases capacity AND increments impact score.
+         * @param {number} id 
+         */
+        recordGuestArrival(id) {
+            const all = this.getAll();
+            const restaurant = all.find(r => r.id === id);
+            
+            if (restaurant) {
+                // Decrease capacity (min 0)
+                if (restaurant.capacity > 0) {
+                    restaurant.capacity--;
+                }
+                
+                // Increase impact score
+                restaurant.impactScore = (restaurant.impactScore || 0) + 1;
+                
+                this.storage.save(this.STORAGE_KEY, all);
+                return restaurant;
+            }
+            return null;
+        }
+
         _getInitialData() {
             return [
-                { id: 1, name: "The Hearth & Grain", cuisine: "Rustic American", location: "Downtown • 0.8 mi", type: "Dinner", capacity: 3, maxCapacity: 5, image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=600&auto=format&fit=crop" },
-                { id: 2, name: "Luna's Table", cuisine: "Mediterranean", location: "West End • 2.1 mi", type: "Lunch", capacity: 0, maxCapacity: 4, image: "https://images.unsplash.com/photo-1559339352-11d035aa65de?q=80&w=600&auto=format&fit=crop" },
-                { id: 3, name: "Early Bird Diner", cuisine: "Breakfast/Brunch", location: "Uptown • 1.5 mi", type: "Breakfast", capacity: 8, maxCapacity: 10, image: "https://images.unsplash.com/photo-1554679665-f5537f187268?q=80&w=600&auto=format&fit=crop" },
-                { id: 4, name: "Saffron House", cuisine: "Indian Fusion", location: "Market District • 3.0 mi", type: "Dinner", capacity: 2, maxCapacity: 3, image: "https://images.unsplash.com/photo-1585937421612-70a008356f36?q=80&w=600&auto=format&fit=crop" },
-                { id: 5, name: "Green Leaf Cafe", cuisine: "Organic/Vegan", location: "Arts District • 0.5 mi", type: "Lunch", capacity: 5, maxCapacity: 5, image: "https://images.unsplash.com/photo-1466978913421-dad938661248?q=80&w=600&auto=format&fit=crop" }
+                { id: 1, name: "The Hearth & Grain", cuisine: "Rustic American", location: "Downtown • 0.8 mi", type: "Dinner", capacity: 3, maxCapacity: 5, impactScore: 124, image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=600&auto=format&fit=crop" },
+                { id: 2, name: "Luna's Table", cuisine: "Mediterranean", location: "West End • 2.1 mi", type: "Lunch", capacity: 0, maxCapacity: 4, impactScore: 89, image: "https://images.unsplash.com/photo-1559339352-11d035aa65de?q=80&w=600&auto=format&fit=crop" },
+                { id: 3, name: "Early Bird Diner", cuisine: "Breakfast/Brunch", location: "Uptown • 1.5 mi", type: "Breakfast", capacity: 8, maxCapacity: 10, impactScore: 215, image: "https://images.unsplash.com/photo-1554679665-f5537f187268?q=80&w=600&auto=format&fit=crop" },
+                { id: 4, name: "Saffron House", cuisine: "Indian Fusion", location: "Market District • 3.0 mi", type: "Dinner", capacity: 2, maxCapacity: 3, impactScore: 42, image: "https://images.unsplash.com/photo-1585937421612-70a008356f36?q=80&w=600&auto=format&fit=crop" },
+                { id: 5, name: "Green Leaf Cafe", cuisine: "Organic/Vegan", location: "Arts District • 0.5 mi", type: "Lunch", capacity: 5, maxCapacity: 5, impactScore: 156, image: "https://images.unsplash.com/photo-1466978913421-dad938661248?q=80&w=600&auto=format&fit=crop" }
             ];
         }
     }
@@ -1073,9 +1099,15 @@
                     store.commit({ _lastUpdate: Date.now() }); 
                 };
 
+                const handleGuestArrived = () => {
+                    repo.recordGuestArrival(user.id);
+                    // Force system-wide update
+                    store.commit({ _lastUpdate: Date.now() });
+                }
+
                 if(e.target.closest('.js-cap-minus')) handleCapUpdate(-1);
                 if(e.target.closest('.js-cap-plus')) handleCapUpdate(1);
-                if(e.target.closest('.js-guest-arrived')) handleCapUpdate(-1);
+                if(e.target.closest('.js-guest-arrived')) handleGuestArrived();
             });
         }
 
@@ -1090,9 +1122,11 @@
                 // Safe DOM updates
                 const nameEl = document.getElementById('dash-restaurant-name');
                 const countEl = document.getElementById('dash-capacity-count');
+                const impactEl = document.getElementById('dash-impact-score');
                 
                 if(nameEl) nameEl.textContent = r.name + " Dashboard";
                 if(countEl) countEl.textContent = r.capacity;
+                if(impactEl) impactEl.textContent = r.impactScore + " Meals";
                 
                 // Translations
                 const t = (sel, key) => {
