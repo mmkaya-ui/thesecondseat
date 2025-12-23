@@ -26,6 +26,7 @@
                         terracotta: '#E27D60',
                         cream: '#F9F7F2',
                         stone: '#DCDCDC',
+                        green: { 600: '#16a34a' }
                     },
                     fontFamily: {
                         sans: ['Inter', 'sans-serif'],
@@ -96,11 +97,16 @@
                         <button class="bg-terracotta hover:bg-orange-700 text-white px-5 py-2 rounded-full text-sm font-medium transition-all shadow-lg transform hover:-translate-y-0.5 js-nav-link" data-target="register" data-i18n="nav.register">For Restaurants</button>
                     </div>
                     
-                    <!-- Language Switcher -->
-                    <div class="flex items-center gap-2 border-l border-white/20 pl-6" id="lang-switcher">
-                        <button class="text-xs font-bold hover:text-terracotta transition-colors lang-btn" data-lang="en">EN</button>
-                        <button class="text-xs font-bold hover:text-terracotta transition-colors lang-btn" data-lang="de">DE</button>
-                        <button class="text-xs font-bold hover:text-terracotta transition-colors lang-btn" data-lang="tr">TR</button>
+                    <!-- Login & Language -->
+                    <div class="flex items-center gap-4 border-l border-white/20 pl-6" id="lang-switcher">
+                        <button class="text-sm font-medium text-gray-300 hover:text-white flex items-center gap-1 js-login-trigger">
+                            <i data-lucide="log-in" class="w-4 h-4"></i> <span data-i18n="nav.login">Login</span>
+                        </button>
+                        <div class="flex gap-2">
+                            <button class="text-xs font-bold hover:text-terracotta transition-colors lang-btn" data-lang="en">EN</button>
+                            <button class="text-xs font-bold hover:text-terracotta transition-colors lang-btn" data-lang="de">DE</button>
+                            <button class="text-xs font-bold hover:text-terracotta transition-colors lang-btn" data-lang="tr">TR</button>
+                        </div>
                     </div>
                 </div>
 
@@ -119,6 +125,8 @@
                 <button class="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium w-full text-left js-nav-link" data-target="home" data-i18n="nav.mission">Mission</button>
                 <button class="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium w-full text-left js-nav-link" data-target="directory" data-i18n="nav.find">Find a Seat</button>
                 <button class="text-terracotta font-bold block px-3 py-2 rounded-md text-base w-full text-left js-nav-link" data-target="register" data-i18n="nav.register">Restaurant Sign Up</button>
+                <button class="text-gray-300 font-bold block px-3 py-2 rounded-md text-base w-full text-left js-login-trigger" data-i18n="nav.login">Login</button>
+                
                 <div class="flex gap-4 px-3 py-4 border-t border-gray-700 mt-2" id="mobile-lang-switcher">
                     <button class="text-sm font-bold text-gray-400 lang-btn" data-lang="en">EN</button>
                     <button class="text-sm font-bold text-gray-400 lang-btn" data-lang="de">DE</button>
@@ -262,25 +270,25 @@
                             <div class="space-y-4">
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.name">Restaurant Name</label>
-                                    <input type="text" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-terracotta focus:border-transparent outline-none transition-all">
+                                    <input type="text" name="name" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-terracotta focus:border-transparent outline-none transition-all">
                                 </div>
                                 <div class="grid grid-cols-2 gap-4">
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.manager">Manager Name</label>
-                                        <input type="text" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-terracotta outline-none">
+                                        <input type="text" name="manager" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-terracotta outline-none">
                                     </div>
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.phone">Business Phone</label>
-                                        <input type="tel" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-terracotta outline-none">
+                                        <input type="tel" name="phone" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-terracotta outline-none">
                                     </div>
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.license">Business License #</label>
-                                    <input type="text" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-terracotta outline-none">
+                                    <input type="text" name="license" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-terracotta outline-none">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.pledge">Proposed Pledge</label>
-                                    <select class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-terracotta outline-none">
+                                    <select name="pledge" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-terracotta outline-none">
                                         <option data-i18n="form.opt1">1-5 Seats</option>
                                         <option data-i18n="form.opt2">5-10 Seats</option>
                                         <option data-i18n="form.opt3">10-20 Seats</option>
@@ -302,6 +310,82 @@
                 </div>
             </div>
         </div>
+
+        <!-- SECTION: DASHBOARD (RESTAURANT PANEL) -->
+        <div id="dashboard" class="page-section hidden min-h-screen bg-gray-50">
+            <div class="bg-charcoal text-cream py-8">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+                    <div>
+                        <h2 class="font-serif text-2xl font-bold" id="dash-restaurant-name">Restaurant Dashboard</h2>
+                        <p class="text-sm text-gray-400">Manage your capacity and impact.</p>
+                    </div>
+                    <button class="text-sm bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg transition-colors js-logout">
+                        Logout
+                    </button>
+                </div>
+            </div>
+
+            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                <!-- Stats Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <!-- Capacity Card -->
+                    <div class="bg-white p-8 rounded-2xl shadow-lg border border-gray-100">
+                        <div class="flex justify-between items-start mb-6">
+                            <div>
+                                <h3 class="text-lg font-bold text-charcoal mb-1" data-i18n="dash.capacity">Current Availability</h3>
+                                <p class="text-sm text-gray-500">Seats available for today</p>
+                            </div>
+                            <div class="p-3 bg-terracotta/10 rounded-full">
+                                <i data-lucide="armchair" class="w-6 h-6 text-terracotta"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center justify-center gap-8 mb-6">
+                            <button class="w-12 h-12 rounded-full border-2 border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors js-cap-minus">
+                                <i data-lucide="minus" class="w-5 h-5 text-gray-600"></i>
+                            </button>
+                            <div class="text-center">
+                                <span class="block text-5xl font-bold text-charcoal" id="dash-capacity-count">0</span>
+                                <span class="text-xs text-gray-400 uppercase tracking-wider">Seats Left</span>
+                            </div>
+                            <button class="w-12 h-12 rounded-full border-2 border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors js-cap-plus">
+                                <i data-lucide="plus" class="w-5 h-5 text-gray-600"></i>
+                            </button>
+                        </div>
+
+                        <button class="w-full bg-terracotta hover:bg-orange-700 text-white font-bold py-4 rounded-xl shadow-md transition-all flex items-center justify-center gap-2 js-guest-arrived">
+                            <i data-lucide="user-check"></i> <span data-i18n="dash.guestBtn">Guest Arrived (Use Seat)</span>
+                        </button>
+                        <p class="text-xs text-center text-gray-400 mt-3">Pressing this instantly updates the public map.</p>
+                    </div>
+
+                    <!-- Status Card -->
+                    <div class="bg-white p-8 rounded-2xl shadow-lg border border-gray-100 flex flex-col justify-between">
+                        <div>
+                            <h3 class="text-lg font-bold text-charcoal mb-4" data-i18n="dash.status">Live Status</h3>
+                            <div class="flex items-center gap-3 mb-6">
+                                <div class="w-3 h-3 rounded-full bg-green-500 animate-pulse"></div>
+                                <span class="text-green-700 font-medium">Online & Visible</span>
+                            </div>
+                            <div class="border-t border-gray-100 pt-4">
+                                <div class="flex justify-between mb-2">
+                                    <span class="text-gray-600">Total Pledged</span>
+                                    <span class="font-bold">5 / day</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Impact Score</span>
+                                    <span class="font-bold text-terracotta">124 Meals</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-blue-50 p-4 rounded-lg mt-6">
+                            <p class="text-sm text-blue-800 italic">"Thank you for being the bridge."</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </main>
 
     <!-- FOOTER -->
@@ -340,44 +424,60 @@
         </div>
     </div>
 
+    <!-- LOGIN MODAL -->
+    <div id="loginModal" class="fixed inset-0 z-[60] hidden">
+        <div class="absolute inset-0 bg-charcoal/80 backdrop-blur-sm js-close-login"></div>
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="font-serif text-2xl font-bold text-charcoal">Restaurant Login</h3>
+                <button class="text-gray-400 hover:text-charcoal js-close-login"><i data-lucide="x" class="w-6 h-6"></i></button>
+            </div>
+            
+            <!-- Error Message Container -->
+            <div id="loginError" class="hidden mb-4 p-3 bg-red-50 border border-red-200 text-red-600 rounded-lg text-sm flex items-center gap-2">
+                <i data-lucide="alert-circle" class="w-4 h-4 flex-shrink-0"></i>
+                <span data-i18n="auth.error">Invalid ID or Password.</span>
+            </div>
+
+            <form id="loginForm">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Restaurant ID</label>
+                    <input type="text" placeholder="" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-terracotta outline-none">
+                </div>
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                    <input type="password" placeholder="" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-terracotta outline-none">
+                </div>
+                <button type="submit" class="w-full bg-charcoal text-white font-bold py-3 rounded-lg hover:bg-gray-800 transition-colors">
+                    Login to Dashboard
+                </button>
+            </form>
+        </div>
+    </div>
+
     <!-- APPLICATION KERNEL -->
     <script>
     /**
      * @fileoverview The Second Seat - Enterprise Grade SPA Architecture
-     * @version 2.1.0
-     * @description Implements reactive state management, dependency injection, component-based UI
-     * and automatic locale detection.
+     * @version 2.2.0
+     * @description Adds Dashboard, Capacity Tracking, Mock Auth and Persistence simulation.
      */
 
     /* =========================================
        CORE INFRASTRUCTURE
        ========================================= */
 
-    /**
-     * @class EventEmitter
-     * @description Pub/Sub implementation for decoupled communication.
-     */
     class EventEmitter {
-        constructor() {
-            this.events = {};
-        }
-
+        constructor() { this.events = {}; }
         on(event, listener) {
             if (!this.events[event]) this.events[event] = [];
             this.events[event].push(listener);
         }
-
         emit(event, payload) {
-            if (this.events[event]) {
-                this.events[event].forEach(listener => listener(payload));
-            }
+            if (this.events[event]) this.events[event].forEach(listener => listener(payload));
         }
     }
 
-    /**
-     * @class ReactiveStore
-     * @description State management using Proxy for automatic reactivity.
-     */
     class ReactiveStore extends EventEmitter {
         constructor(initialState) {
             super();
@@ -389,46 +489,42 @@
                 }
             });
         }
-
         get() { return this.state; }
-        
-        /**
-         * @param {Partial<Object>} newState 
-         */
-        commit(newState) {
-            Object.assign(this.state, newState);
-        }
+        commit(newState) { Object.assign(this.state, newState); }
     }
 
-    /**
-     * @class ServiceContainer
-     * @description Simple Dependency Injection container.
-     */
     class ServiceContainer {
-        constructor() {
-            this.services = new Map();
-        }
-
-        register(name, instance) {
-            this.services.set(name, instance);
-        }
-
-        get(name) {
-            if (!this.services.has(name)) throw new Error(`Service ${name} not found`);
-            return this.services.get(name);
-        }
+        constructor() { this.services = new Map(); }
+        register(name, instance) { this.services.set(name, instance); }
+        get(name) { return this.services.get(name); }
     }
 
     /* =========================================
        SERVICES
        ========================================= */
 
+    class AuthService {
+        constructor() {
+            this.user = null;
+        }
+        login(id, password) {
+            // Mock Login Logic
+            if (id === '001' && password === '19283746Adm1n') {
+                this.user = { id: 1, role: 'restaurant', name: 'Admin Restaurant' };
+                return true;
+            }
+            return false;
+        }
+        logout() { this.user = null; }
+        getUser() { return this.user; }
+        isAuthenticated() { return !!this.user; }
+    }
+
     class I18nService {
         constructor() {
             this.currentLang = 'tr';
             this.dictionary = this._loadDictionary();
         }
-
         setLanguage(lang) {
             if (this.dictionary[lang]) {
                 this.currentLang = lang;
@@ -437,17 +533,15 @@
             }
             return false;
         }
-
-        t(key) {
-            return key.split('.').reduce((obj, k) => obj && obj[k], this.dictionary[this.currentLang]) || key;
-        }
-
+        t(key) { return key.split('.').reduce((obj, k) => obj && obj[k], this.dictionary[this.currentLang]) || key; }
+        
         _loadDictionary() {
             return {
                 en: {
                     meta: { title: "The Second Seat | Hunger is cured by food. Isolation by company." },
                     brandName: "The Second Seat",
-                    nav: { mission: "Mission", find: "Find a Seat", register: "For Restaurants" },
+                    nav: { mission: "Mission", find: "Find a Seat", register: "For Restaurants", login: "Login" },
+                    auth: { error: "Invalid Restaurant ID or Password." },
                     hero: {
                         line1: "Hunger is cured by food.",
                         line2: "Isolation is cured by company.",
@@ -492,24 +586,16 @@
                         agree: "I agree to the ",
                         submit: "Submit Application"
                     },
-                    footer: {
-                        tagline: "Building tables, not walls.",
-                        conduct: "Code of Conduct",
-                        safety: "Safety Guidelines",
-                        contact: "Contact"
-                    },
-                    modal: {
-                        title: "Table Set.",
-                        body: "You’ve just joined a quiet revolution. By pledging your capacity, you aren't just giving away food; you are reclaiming the public square.",
-                        footer: "Our verification team will call the number provided within 24 hours.",
-                        btn: "Return to Home"
-                    },
+                    dash: { capacity: "Current Availability", guestBtn: "Guest Arrived (Use Seat)", status: "Live Status" },
+                    footer: { tagline: "Building tables, not walls.", conduct: "Code of Conduct", safety: "Safety Guidelines", contact: "Contact" },
+                    modal: { title: "Table Set.", body: "You’ve just joined a quiet revolution. By pledging your capacity, you aren't just giving away food; you are reclaiming the public square.", footer: "Our verification team will call the number provided within 24 hours.", btn: "Return to Home" },
                     dynamic: { full: "Full", open: "Open Seats", left: "Left", daily: "Daily 'Second Seats'", directions: "Get Directions" }
                 },
                 de: {
                     meta: { title: "Der Zweite Stuhl | Hunger stillt man mit Essen. Einsamkeit mit Gesellschaft." },
                     brandName: "Der Zweite Stuhl",
-                    nav: { mission: "Mission", find: "Platz finden", register: "Für Restaurants" },
+                    nav: { mission: "Mission", find: "Platz finden", register: "Für Restaurants", login: "Anmelden" },
+                    auth: { error: "Ungültige Restaurant-ID oder Passwort." },
                     hero: {
                         line1: "Hunger stillt man mit Essen.",
                         line2: "Einsamkeit mit Gesellschaft.",
@@ -554,24 +640,16 @@
                         agree: "Ich stimme dem Protokoll zu: ",
                         submit: "Antrag absenden"
                     },
-                    footer: {
-                        tagline: "Wir bauen Tische, keine Mauern.",
-                        conduct: "Verhaltenskodex",
-                        safety: "Sicherheitsrichtlinien",
-                        contact: "Kontakt"
-                    },
-                    modal: {
-                        title: "Tisch gedeckt.",
-                        body: "Du hast dich einer stillen Revolution angeschlossen. Mit deiner Zusage verschenkst du nicht nur Essen; du eroberst den öffentlichen Raum zurück.",
-                        footer: "Unser Verifizierungsteam wird die angegebene Nummer innerhalb von 24 Stunden anrufen.",
-                        btn: "Zurück zur Startseite"
-                    },
+                    dash: { capacity: "Aktuelle Verfügbarkeit", guestBtn: "Gast ist da (Platz belegen)", status: "Live Status" },
+                    footer: { tagline: "Wir bauen Tische, keine Mauern.", conduct: "Verhaltenskodex", safety: "Sicherheitsrichtlinien", contact: "Kontakt" },
+                    modal: { title: "Tisch gedeckt.", body: "Du hast dich einer stillen Revolution angeschlossen. Mit deiner Zusage verschenkst du nicht nur Essen; du eroberst den öffentlichen Raum zurück.", footer: "Unser Verifizierungsteam wird die angegebene Nummer innerhalb von 24 Stunden anrufen.", btn: "Zurück zur Startseite" },
                     dynamic: { full: "Belegt", open: "Plätze frei", left: "Verfügbar", daily: "Tägliche 'Zweite Stühle'", directions: "Route planen" }
                 },
                 tr: {
                     meta: { title: "İkinci Sandalye | Açlığın ilacı yemektir. Yalnızlığın ilacı muhabbettir." },
                     brandName: "İkinci Sandalye",
-                    nav: { mission: "Misyon", find: "Yer Bul", register: "Restoranlar İçin" },
+                    nav: { mission: "Misyon", find: "Yer Bul", register: "Restoranlar İçin", login: "Giriş" },
+                    auth: { error: "Geçersiz Restoran ID veya Şifre." },
                     hero: {
                         line1: "Açlığın ilacı yemektir.",
                         line2: "Yalnızlığın ilacı muhabbettir.",
@@ -616,18 +694,9 @@
                         agree: "Şu protokolü kabul ediyorum: ",
                         submit: "Başvuruyu Gönder"
                     },
-                    footer: {
-                        tagline: "Duvar değil, sofra kuruyoruz.",
-                        conduct: "Davranış Kuralları",
-                        safety: "Güvenlik İlkeleri",
-                        contact: "İletişim"
-                    },
-                    modal: {
-                        title: "Masa Hazır.",
-                        body: "Sessiz bir devrime katıldın. Kapasiteni paylaşarak sadece yemek vermiyorsun; kamusal alanı geri kazanıyorsun.",
-                        footer: "Doğrulama ekibimiz 24 saat içinde verilen numarayı arayacaktır.",
-                        btn: "Ana Sayfaya Dön"
-                    },
+                    dash: { capacity: "Anlık Kapasite Durumu", guestBtn: "Misafir Geldi (Kullan)", status: "Canlı Durum" },
+                    footer: { tagline: "Duvar değil, sofra kuruyoruz.", conduct: "Davranış Kuralları", safety: "Güvenlik İlkeleri", contact: "İletişim" },
+                    modal: { title: "Masa Hazır.", body: "Sessiz bir devrime katıldın. Kapasiteni paylaşarak sadece yemek vermiyorsun; kamusal alanı geri kazanıyorsun.", footer: "Doğrulama ekibimiz 24 saat içinde verilen numarayı arayacaktır.", btn: "Ana Sayfaya Dön" },
                     dynamic: { full: "Dolu", open: "Yer Var", left: "Kaldı", daily: "Günlük 'İkinci Sandalye'", directions: "Yol Tarifi Al" }
                 }
             };
@@ -636,6 +705,7 @@
 
     class RestaurantService {
         constructor() {
+            // In a real app, this data comes from backend.
             this.restaurants = [
                 { id: 1, name: "The Hearth & Grain", cuisine: "Rustic American", location: "Downtown • 0.8 mi", type: "Dinner", capacity: 3, maxCapacity: 5, image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=600&auto=format&fit=crop" },
                 { id: 2, name: "Luna's Table", cuisine: "Mediterranean", location: "West End • 2.1 mi", type: "Lunch", capacity: 0, maxCapacity: 4, image: "https://images.unsplash.com/photo-1559339352-11d035aa65de?q=80&w=600&auto=format&fit=crop" },
@@ -646,7 +716,6 @@
         }
 
         async fetchAll() {
-            // Simulate API delay
             return new Promise(resolve => setTimeout(() => resolve(this.restaurants), 50));
         }
 
@@ -655,73 +724,85 @@
                 ? this.restaurants 
                 : this.restaurants.filter(r => r.type === type);
         }
+
+        // Mock method to simulate submitting application to backend
+        async submitApplication(formData) {
+            console.log("--- APPLICATION SUBMITTED TO BACKEND ---");
+            console.log("Endpoint: POST /api/applications");
+            console.log("Data:", Object.fromEntries(formData));
+            // In real app: await fetch('/api/applications', { method: 'POST', body: formData })
+            return new Promise(resolve => setTimeout(resolve, 500));
+        }
+
+        // Method to update capacity (Live Tracking)
+        updateCapacity(id, change) {
+            const r = this.restaurants.find(x => x.id === id);
+            if(r) {
+                let newCap = r.capacity + change;
+                if(newCap < 0) newCap = 0;
+                if(newCap > r.maxCapacity) newCap = r.maxCapacity;
+                r.capacity = newCap;
+            }
+        }
+        
+        getById(id) {
+            return this.restaurants.find(x => x.id === id);
+        }
     }
 
     /* =========================================
        UI ABSTRACTIONS (COMPONENTS)
        ========================================= */
 
-    /**
-     * @class Component
-     * @description Base component class handling element binding and lifecycle.
-     */
     class Component {
         constructor(elementId, container) {
             this.el = typeof elementId === 'string' ? document.getElementById(elementId) : elementId;
             this.services = container;
             if (!this.el) console.warn(`Element not found: ${elementId}`);
         }
-        
-        // No-op lifecycle hooks
         mount() {}
         update(state) {}
     }
 
-    /**
-     * @class NavbarComponent
-     * @description Handles navigation and language switching logic.
-     */
     class NavbarComponent extends Component {
         mount(store) {
-            // Language Switching
-            const desktopSwitcher = document.getElementById('lang-switcher');
-            const mobileSwitcher = document.getElementById('mobile-lang-switcher');
-            
             const handleLangClick = (e) => {
                 const btn = e.target.closest('.lang-btn');
                 if (btn) store.commit({ lang: btn.dataset.lang });
             };
 
+            const desktopSwitcher = document.getElementById('lang-switcher');
+            const mobileSwitcher = document.getElementById('mobile-lang-switcher');
             if (desktopSwitcher) desktopSwitcher.addEventListener('click', handleLangClick);
             if (mobileSwitcher) mobileSwitcher.addEventListener('click', handleLangClick);
 
-            // Mobile Menu Toggle
             const toggleBtn = document.getElementById('mobile-menu-btn');
             if (toggleBtn) {
                 toggleBtn.addEventListener('click', () => {
-                    const menu = document.getElementById('mobile-menu');
-                    menu.classList.toggle('hidden');
+                    document.getElementById('mobile-menu').classList.toggle('hidden');
                 });
             }
+
+            // Login Triggers
+            document.querySelectorAll('.js-login-trigger').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.getElementById('loginModal').classList.remove('hidden');
+                    document.getElementById('mobile-menu').classList.add('hidden');
+                });
+            });
         }
 
         update(state) {
             const i18n = this.services.get('i18n');
-            const langBtns = document.querySelectorAll('.lang-btn');
             
-            // Hydrate Nav Text
             document.querySelectorAll('[data-i18n^="nav."]').forEach(el => {
-                const key = el.getAttribute('data-i18n');
-                el.textContent = i18n.t(key);
+                if(!el.closest('#dashboard')) { // Don't translate dashboard specifically here
+                    el.textContent = i18n.t(el.getAttribute('data-i18n'));
+                }
             });
-            
-            // Hydrate Brand
-            document.querySelectorAll('[data-i18n="brandName"]').forEach(el => {
-                el.textContent = i18n.t("brandName");
-            });
+            document.querySelectorAll('[data-i18n="brandName"]').forEach(el => el.textContent = i18n.t("brandName"));
 
-            // Update Active State
-            langBtns.forEach(btn => {
+            document.querySelectorAll('.lang-btn').forEach(btn => {
                 if (btn.dataset.lang === state.lang) {
                     btn.classList.remove('text-gray-400');
                     btn.classList.add('text-white', 'underline');
@@ -733,50 +814,40 @@
         }
     }
 
-    /**
-     * @class DirectoryComponent
-     * @description Manages the restaurant list and filters.
-     */
     class DirectoryComponent extends Component {
         mount(store) {
             this.grid = document.getElementById('restaurant-grid');
-            const filterContainer = document.getElementById('filter-container');
-            
-            filterContainer.addEventListener('click', (e) => {
+            document.getElementById('filter-container').addEventListener('click', (e) => {
                 const btn = e.target.closest('.filter-btn');
                 if (btn) store.commit({ filter: btn.dataset.filter });
             });
         }
 
         async update(state) {
-            // Update Filter UI
+            const i18n = this.services.get('i18n');
             document.querySelectorAll('.filter-btn').forEach(btn => {
                 const isActive = btn.dataset.filter === state.filter;
                 btn.className = `filter-btn px-6 py-2 rounded-full text-sm font-semibold transition-all cursor-pointer ${
                     isActive ? 'bg-terracotta text-white' : 'bg-white/10 hover:bg-white/20 text-white'
                 }`;
-                // Translate filter button text
-                const i18nKey = `filter.${btn.dataset.filter.toLowerCase()}`;
-                const translation = this.services.get('i18n').t(i18nKey);
-                // Only update if translation exists to avoid clearing static text
-                if (translation && translation !== i18nKey) btn.textContent = translation; 
+                const key = `filter.${btn.dataset.filter.toLowerCase()}`;
+                const trans = i18n.t(key);
+                if (trans !== key) btn.textContent = trans;
             });
 
-            // Render Grid
             const repo = this.services.get('repo');
             const restaurants = repo.filterByType(state.filter);
-            this.renderGrid(restaurants, state.lang);
+            this.renderGrid(restaurants);
         }
 
-        renderGrid(items, lang) {
+        renderGrid(items) {
             const i18n = this.services.get('i18n');
             const t = i18n.t('dynamic');
             
             this.grid.innerHTML = items.map(r => {
                 const isFull = r.capacity === 0;
                 const capacityPct = (r.capacity / r.maxCapacity) * 100;
-                const typeKey = `filter.${r.type.toLowerCase()}`;
-                const typeTrans = i18n.t(typeKey) || r.type;
+                const typeTrans = i18n.t(`filter.${r.type.toLowerCase()}`) || r.type;
 
                 return `
                     <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow border border-gray-100 group">
@@ -823,210 +894,221 @@
         }
     }
 
-    /**
-     * @class StaticContentComponent
-     * @description Hydrates static text elements based on data-i18n attributes.
-     */
     class StaticContentComponent extends Component {
         update(state) {
             const i18n = this.services.get('i18n');
-            // Select all elements with data-i18n that are NOT nav items (handled by Navbar)
             const elements = document.querySelectorAll('[data-i18n]:not([data-i18n^="nav."]):not([data-i18n^="filter."])');
-            
             elements.forEach(el => {
-                const key = el.getAttribute('data-i18n');
-                const translation = i18n.t(key);
-                if (typeof translation === 'string') {
-                    // Check if element has child nodes (like icons in buttons)
-                    // If it does, we assume the text is in a span or direct text node we should replace carefully.
-                    // For simplicity in this architecture, we replace textContent if it's a leaf node or specific wrappers.
-                    // However, to be robust for the button icons, we check if it has children.
-                    if (el.children.length > 0 && !el.querySelector('span')) {
-                        // Complex element, maybe skip or handle specifically?
-                        // The 'span' check handles the CTA buttons nicely.
-                    } else {
-                        el.textContent = translation;
-                    }
+                const translation = i18n.t(el.getAttribute('data-i18n'));
+                if (typeof translation === 'string' && el.children.length === 0) {
+                    el.textContent = translation;
+                } else if(el.querySelector('span') && typeof translation === 'string') {
+                    // Specific fix for buttons with icons
+                    // Not overriding HTML structure
                 }
             });
-
-            // Update Document Title
             const title = i18n.t('meta.title');
-            if (title && title !== 'meta.title') {
-                document.title = title;
+            if (title && title !== 'meta.title') document.title = title;
+        }
+    }
+
+    class DashboardComponent extends Component {
+        mount(store) {
+            // Event Delegation for Dashboard Actions
+            this.el.addEventListener('click', (e) => {
+                const auth = this.services.get('auth');
+                const repo = this.services.get('repo');
+                const user = auth.getUser();
+
+                if (!user) return;
+
+                // Logout
+                if(e.target.closest('.js-logout')) {
+                    auth.logout();
+                    store.commit({ view: 'home' }); // Navigate home
+                    // Force refresh grid to show un-logged state if needed
+                }
+
+                // Capacity Minus
+                if(e.target.closest('.js-cap-minus')) {
+                    repo.updateCapacity(user.id, -1);
+                    store.commit({}); // Trigger re-render
+                }
+
+                // Capacity Plus
+                if(e.target.closest('.js-cap-plus')) {
+                    repo.updateCapacity(user.id, 1);
+                    store.commit({}); // Trigger re-render
+                }
+
+                // Guest Arrived (Shortcut for minus)
+                if(e.target.closest('.js-guest-arrived')) {
+                    repo.updateCapacity(user.id, -1);
+                    store.commit({}); // Trigger re-render
+                }
+            });
+        }
+
+        update(state) {
+            const auth = this.services.get('auth');
+            const repo = this.services.get('repo');
+            const i18n = this.services.get('i18n');
+            const user = auth.getUser();
+
+            if (user) {
+                const r = repo.getById(user.id);
+                document.getElementById('dash-restaurant-name').textContent = r.name + " Dashboard";
+                document.getElementById('dash-capacity-count').textContent = r.capacity;
+                
+                // Update Translations inside dashboard
+                document.querySelector('[data-i18n="dash.capacity"]').textContent = i18n.t("dash.capacity");
+                document.querySelector('[data-i18n="dash.status"]').textContent = i18n.t("dash.status");
+                const btnSpan = document.querySelector('[data-i18n="dash.guestBtn"]');
+                if(btnSpan) btnSpan.textContent = i18n.t("dash.guestBtn");
             }
         }
     }
 
-    /**
-     * @class Router
-     * @description Simple Hash-based router to manage view visibility.
-     */
     class Router {
-        constructor() {
-            this.routes = ['home', 'directory', 'register'];
-            this.currentRoute = 'home';
-        }
-
-        init() {
-            // Handle initial delegation for navigation links
+        constructor() { this.routes = ['home', 'directory', 'register', 'dashboard']; }
+        init(store) {
             document.body.addEventListener('click', (e) => {
                 const link = e.target.closest('.js-nav-link');
                 if (link) {
                     e.preventDefault();
-                    this.navigate(link.dataset.target);
+                    store.commit({ view: link.dataset.target });
                 }
             });
         }
-
-        navigate(routeId) {
-            if (!this.routes.includes(routeId)) return;
-            
-            this.currentRoute = routeId;
-            
-            // Hide all
-            document.querySelectorAll('.page-section').forEach(el => {
-                el.classList.add('hidden');
-                el.classList.remove('fade-in');
-            });
-            
-            // Show target
-            const target = document.getElementById(routeId);
-            if (target) {
-                target.classList.remove('hidden');
-                target.classList.add('fade-in');
-                window.scrollTo(0, 0);
-            }
-            
-            // Close mobile menu if open
-            document.getElementById('mobile-menu').classList.add('hidden');
-        }
     }
 
-    /**
-     * @class FormManager
-     * @description Handles the registration form and success modal logic.
-     */
     class FormManager extends Component {
         mount(store) {
             const form = document.getElementById('partnerForm');
             const modal = document.getElementById('successModal');
+            const loginForm = document.getElementById('loginForm');
+            const loginModal = document.getElementById('loginModal');
+            const loginError = document.getElementById('loginError');
             
             if (form) {
-                form.addEventListener('submit', (e) => {
+                form.addEventListener('submit', async (e) => {
                     e.preventDefault();
+                    const repo = this.services.get('repo');
+                    // Send to backend
+                    await repo.submitApplication(new FormData(form));
                     modal.classList.remove('hidden');
                 });
             }
 
-            // Close Modal Delegation
+            if (loginForm) {
+                // Clear error on input
+                loginForm.addEventListener('input', () => {
+                    loginError.classList.add('hidden');
+                });
+
+                loginForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const inputs = loginForm.querySelectorAll('input');
+                    const id = inputs[0].value;
+                    const pass = inputs[1].value;
+                    
+                    const auth = this.services.get('auth');
+                    if (auth.login(id, pass)) {
+                        loginModal.classList.add('hidden');
+                        loginError.classList.add('hidden');
+                        store.commit({ view: 'dashboard' });
+                        loginForm.reset();
+                    } else {
+                        loginError.classList.remove('hidden');
+                        // Ensure icon renders if it wasn't visible before (though usually fine)
+                        if (window.lucide) window.lucide.createIcons();
+                    }
+                });
+            }
+
+            // Close Modals
             document.body.addEventListener('click', (e) => {
                 if (e.target.closest('.js-close-modal')) {
                     modal.classList.add('hidden');
-                    // Return to home
-                    document.getElementById('home').classList.remove('hidden');
-                    document.getElementById('register').classList.add('hidden');
+                    store.commit({ view: 'home' });
                     if(form) form.reset();
+                }
+                if (e.target.closest('.js-close-login')) {
+                    loginModal.classList.add('hidden');
+                    loginError.classList.add('hidden'); // Reset error state on close
+                    if(loginForm) loginForm.reset();
                 }
             });
         }
     }
 
-    /* =========================================
-       APPLICATION BOOTSTRAPPER
-       ========================================= */
-
     class App {
         static async init() {
-            console.log('Initializing The Second Seat App v2.1...');
-
-            // 1. Setup DI Container
             const container = new ServiceContainer();
             container.register('i18n', new I18nService());
             container.register('repo', new RestaurantService());
+            container.register('auth', new AuthService());
 
-            // ---------------------------------------------------------
-            // AUTO-LANGUAGE DETECTION LOGIC (Domain + Browser)
-            // ---------------------------------------------------------
             const detectUserLanguage = () => {
-                const hostname = window.location.hostname;
-
-                // 1. Domain-based detection
-                if (hostname.includes('ikincisandalye.org')) return 'tr';
-                if (hostname.includes('derzweitestuhl.org')) return 'de';
-                if (hostname.includes('thesecondstool.org')) return 'en';
-
-                // 2. Browser-based fallback
-                // Get browser language (e.g., "tr-TR", "de", "en-US")
-                const browserLang = navigator.language || navigator.userLanguage; 
-                const shortCode = browserLang.split('-')[0]; // "tr-TR" -> "tr"
-
-                // Check against supported languages
-                const supportedLanguages = ['tr', 'de'];
-                
-                // Logic:
-                // 1. If user is Turkish (tr), return 'tr'
-                // 2. If user is German (de), return 'de'
-                // 3. For EVERYONE else (US, UK, India, etc.), default to 'en'
-                if (supportedLanguages.includes(shortCode)) {
-                    return shortCode;
-                }
-                
+                const h = window.location.hostname;
+                if (h.includes('ikincisandalye')) return 'tr';
+                if (h.includes('derzweitestuhl')) return 'de';
+                if (h.includes('thesecondstool')) return 'en';
+                const lang = navigator.language || navigator.userLanguage; 
+                if (lang.startsWith('tr')) return 'tr';
+                if (lang.startsWith('de')) return 'de';
                 return 'en';
             };
 
-            const initialLang = detectUserLanguage();
-            console.log(`Detected Language: ${initialLang} (Browser: ${navigator.language})`);
-
-            // 2. Setup State with Detected Language
             const store = new ReactiveStore({
-                lang: initialLang,
-                filter: 'all'
+                lang: detectUserLanguage(),
+                filter: 'all',
+                view: 'home' // State now controls view
             });
 
-            // 3. Setup Components
             const components = [
                 new NavbarComponent('navbar', container),
                 new DirectoryComponent('directory', container),
                 new StaticContentComponent(document.body, container),
-                new FormManager('register', container)
+                new FormManager('register', container),
+                new DashboardComponent('dashboard', container)
             ];
 
-            // 4. Setup Router
             const router = new Router();
-            router.init();
+            router.init(store);
 
-            // 5. Mount Components
             components.forEach(c => c.mount(store));
 
-            // 6. Define Reactivity
             store.on('stateChange', ({ key, value, state }) => {
-                // Update I18n Service if lang changed
-                if (key === 'lang') {
-                    container.get('i18n').setLanguage(value);
-                }
+                if (key === 'lang') container.get('i18n').setLanguage(value);
                 
-                // Trigger Component Updates
+                // Handle View Switching via State
+                if (key === 'view') {
+                    document.querySelectorAll('.page-section').forEach(el => {
+                        el.classList.add('hidden');
+                        el.classList.remove('fade-in');
+                    });
+                    const target = document.getElementById(value);
+                    if (target) {
+                        target.classList.remove('hidden');
+                        target.classList.add('fade-in');
+                        window.scrollTo(0, 0);
+                    }
+                    document.getElementById('mobile-menu').classList.add('hidden');
+                }
+
                 components.forEach(c => c.update(state));
             });
 
-            // 7. Initial Hydration
+            // Initial Hydration
             store.commit({}); 
-            
-            // Force initial render with detected language
-            container.get('i18n').setLanguage(initialLang);
+            container.get('i18n').setLanguage(store.get().lang);
             components.forEach(c => c.update(store.get()));
-            
-            // Init Icons
             if (window.lucide) window.lucide.createIcons();
-
-            console.log('App Ready.');
         }
     }
 
-    // Start Engine
     document.addEventListener('DOMContentLoaded', App.init);
-
     </script>
 </body>
 </html>
