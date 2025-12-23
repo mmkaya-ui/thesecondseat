@@ -458,26 +458,84 @@
     <!-- APPLICATION KERNEL -->
     <script>
     /**
-     * @fileoverview The Second Seat - Enterprise Grade SPA Architecture
-     * @version 2.2.0
-     * @description Adds Dashboard, Capacity Tracking, Mock Auth and Persistence simulation.
+     * @fileoverview The Second Seat - Enterprise Grade SPA
+     * @version 3.0.0
+     * @author Gemini Senior Architect
+     * * ARCHITECTURE:
+     * 1. Core: DI Container, Event Emitter, Reactive Store
+     * 2. Infrastructure: Storage Adapter (Persistence), I18n
+     * 3. Domain: Repositories (Data Access)
+     * 4. Application: Services (Business Logic)
+     * 5. Presentation: Components (View Logic)
      */
 
     /* =========================================
-       CORE INFRASTRUCTURE
+       0. CONFIGURATION & TYPES
        ========================================= */
 
+    const CONFIG = {
+        APP_KEY: 'the_second_seat_v1',
+        ADMIN: {
+            ID: '001',
+            // In a real app, hash this!
+            HASH: '19283746Adm1n', 
+            NAME: 'Yönetici (Admin)'
+        },
+        DEFAULT_LANG: 'tr',
+        SUPPORTED_LANGS: ['tr', 'en', 'de'],
+        DOMAINS: {
+            TR: 'ikincisandalye.org',
+            DE: 'derzweitestuhl.org',
+            EN: 'thesecondstool.org'
+        },
+        ANIMATION_DELAY: 50 // ms
+    };
+
+    /**
+     * @typedef {Object} Restaurant
+     * @property {number} id
+     * @property {string} name
+     * @property {string} cuisine
+     * @property {string} location
+     * @property {string} type - Breakfast, Lunch, Dinner
+     * @property {number} capacity
+     * @property {number} maxCapacity
+     * @property {string} image
+     */
+
+    /* =========================================
+       1. CORE INFRASTRUCTURE
+       ========================================= */
+
+    /**
+     * Pub/Sub Pattern for loosely coupled communication.
+     */
     class EventEmitter {
-        constructor() { this.events = {}; }
+        constructor() { this.events = new Map(); }
+
+        /**
+         * @param {string} event 
+         * @param {Function} listener 
+         */
         on(event, listener) {
-            if (!this.events[event]) this.events[event] = [];
-            this.events[event].push(listener);
+            if (!this.events.has(event)) this.events.set(event, []);
+            this.events.get(event).push(listener);
         }
+
+        /**
+         * @param {string} event 
+         * @param {any} payload 
+         */
         emit(event, payload) {
-            if (this.events[event]) this.events[event].forEach(listener => listener(payload));
+            if (this.events.has(event)) {
+                this.events.get(event).forEach(listener => listener(payload));
+            }
         }
     }
 
+    /**
+     * State Management with Proxy for automatic reactivity.
+     */
     class ReactiveStore extends EventEmitter {
         constructor(initialState) {
             super();
@@ -485,46 +543,82 @@
                 set: (target, key, value) => {
                     target[key] = value;
                     this.emit('stateChange', { key, value, state: this.state });
+                    // Also emit specific key event for granular subscriptions
+                    this.emit(`change:${String(key)}`, value);
                     return true;
                 }
             });
         }
+
         get() { return this.state; }
-        commit(newState) { Object.assign(this.state, newState); }
+        
+        /** @param {Partial<Object>} newState */
+        commit(newState) {
+            Object.entries(newState).forEach(([key, value]) => {
+                this.state[key] = value;
+            });
+        }
     }
 
+    /**
+     * Dependency Injection Container.
+     */
     class ServiceContainer {
         constructor() { this.services = new Map(); }
-        register(name, instance) { this.services.set(name, instance); }
-        get(name) { return this.services.get(name); }
+        
+        register(name, instance) { 
+            this.services.set(name, instance);
+            return this;
+        }
+        
+        /**
+         * @template T
+         * @param {string} name 
+         * @returns {T}
+         */
+        get(name) {
+            if (!this.services.has(name)) throw new Error(`Service [${name}] not registered.`);
+            return this.services.get(name);
+        }
     }
 
     /* =========================================
-       SERVICES
+       2. INFRASTRUCTURE ADAPTERS
        ========================================= */
 
-    class AuthService {
-        constructor() {
-            this.user = null;
+    /**
+     * LocalStorage wrapper for persistence.
+     */
+    class StorageAdapter {
+        constructor(namespace = CONFIG.APP_KEY) {
+            this.ns = namespace;
         }
-        login(id, password) {
-            // Mock Login Logic
-            if (id === '001' && password === '19283746Adm1n') {
-                this.user = { id: 1, role: 'restaurant', name: 'Admin Restaurant' };
-                return true;
+
+        save(key, data) {
+            try {
+                localStorage.setItem(`${this.ns}:${key}`, JSON.stringify(data));
+            } catch (e) {
+                console.error('Storage Save Error:', e);
             }
-            return false;
         }
-        logout() { this.user = null; }
-        getUser() { return this.user; }
-        isAuthenticated() { return !!this.user; }
+
+        load(key) {
+            try {
+                const data = localStorage.getItem(`${this.ns}:${key}`);
+                return data ? JSON.parse(data) : null;
+            } catch (e) {
+                console.error('Storage Load Error:', e);
+                return null;
+            }
+        }
     }
 
     class I18nService {
         constructor() {
-            this.currentLang = 'tr';
+            this.currentLang = CONFIG.DEFAULT_LANG;
             this.dictionary = this._loadDictionary();
         }
+
         setLanguage(lang) {
             if (this.dictionary[lang]) {
                 this.currentLang = lang;
@@ -533,8 +627,12 @@
             }
             return false;
         }
-        t(key) { return key.split('.').reduce((obj, k) => obj && obj[k], this.dictionary[this.currentLang]) || key; }
-        
+
+        t(key) {
+            return key.split('.').reduce((obj, k) => obj && obj[k], this.dictionary[this.currentLang]) || key;
+        }
+
+        // Expanded Dictionary with corrected texts
         _loadDictionary() {
             return {
                 en: {
@@ -703,10 +801,54 @@
         }
     }
 
-    class RestaurantService {
-        constructor() {
-            // In a real app, this data comes from backend.
-            this.restaurants = [
+    /* =========================================
+       3. DOMAIN LAYER (REPOSITORIES)
+       ========================================= */
+
+    /**
+     * Handles data access and persistence logic.
+     */
+    class RestaurantRepository {
+        /**
+         * @param {StorageAdapter} storage 
+         */
+        constructor(storage) {
+            this.storage = storage;
+            this.STORAGE_KEY = 'restaurants_v1';
+            
+            // Seed data if empty
+            if (!this.storage.load(this.STORAGE_KEY)) {
+                this.storage.save(this.STORAGE_KEY, this._getInitialData());
+            }
+        }
+
+        getAll() {
+            return this.storage.load(this.STORAGE_KEY) || [];
+        }
+
+        getById(id) {
+            const all = this.getAll();
+            return all.find(r => r.id === id);
+        }
+
+        updateCapacity(id, change) {
+            const all = this.getAll();
+            const restaurant = all.find(r => r.id === id);
+            
+            if (restaurant) {
+                let newCap = restaurant.capacity + change;
+                if (newCap < 0) newCap = 0;
+                if (newCap > restaurant.maxCapacity) newCap = restaurant.maxCapacity;
+                
+                restaurant.capacity = newCap;
+                this.storage.save(this.STORAGE_KEY, all);
+                return restaurant;
+            }
+            return null;
+        }
+
+        _getInitialData() {
+            return [
                 { id: 1, name: "The Hearth & Grain", cuisine: "Rustic American", location: "Downtown • 0.8 mi", type: "Dinner", capacity: 3, maxCapacity: 5, image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=600&auto=format&fit=crop" },
                 { id: 2, name: "Luna's Table", cuisine: "Mediterranean", location: "West End • 2.1 mi", type: "Lunch", capacity: 0, maxCapacity: 4, image: "https://images.unsplash.com/photo-1559339352-11d035aa65de?q=80&w=600&auto=format&fit=crop" },
                 { id: 3, name: "Early Bird Diner", cuisine: "Breakfast/Brunch", location: "Uptown • 1.5 mi", type: "Breakfast", capacity: 8, maxCapacity: 10, image: "https://images.unsplash.com/photo-1554679665-f5537f187268?q=80&w=600&auto=format&fit=crop" },
@@ -714,54 +856,46 @@
                 { id: 5, name: "Green Leaf Cafe", cuisine: "Organic/Vegan", location: "Arts District • 0.5 mi", type: "Lunch", capacity: 5, maxCapacity: 5, image: "https://images.unsplash.com/photo-1466978913421-dad938661248?q=80&w=600&auto=format&fit=crop" }
             ];
         }
-
-        async fetchAll() {
-            return new Promise(resolve => setTimeout(() => resolve(this.restaurants), 50));
-        }
-
-        filterByType(type) {
-            return type === 'all' 
-                ? this.restaurants 
-                : this.restaurants.filter(r => r.type === type);
-        }
-
-        // Mock method to simulate submitting application to backend
-        async submitApplication(formData) {
-            console.log("--- APPLICATION SUBMITTED TO BACKEND ---");
-            console.log("Endpoint: POST /api/applications");
-            console.log("Data:", Object.fromEntries(formData));
-            // In real app: await fetch('/api/applications', { method: 'POST', body: formData })
-            return new Promise(resolve => setTimeout(resolve, 500));
-        }
-
-        // Method to update capacity (Live Tracking)
-        updateCapacity(id, change) {
-            const r = this.restaurants.find(x => x.id === id);
-            if(r) {
-                let newCap = r.capacity + change;
-                if(newCap < 0) newCap = 0;
-                if(newCap > r.maxCapacity) newCap = r.maxCapacity;
-                r.capacity = newCap;
-            }
-        }
-        
-        getById(id) {
-            return this.restaurants.find(x => x.id === id);
-        }
     }
 
     /* =========================================
-       UI ABSTRACTIONS (COMPONENTS)
+       4. APPLICATION LAYER (SERVICES)
+       ========================================= */
+
+    class AuthService {
+        constructor() {
+            this.user = null;
+        }
+
+        login(id, password) {
+            if (id === CONFIG.ADMIN.ID && password === CONFIG.ADMIN.HASH) {
+                this.user = { id: 1, role: 'admin', name: CONFIG.ADMIN.NAME };
+                return true;
+            }
+            return false;
+        }
+
+        logout() { this.user = null; }
+        getUser() { return this.user; }
+        isAuthenticated() { return !!this.user; }
+    }
+
+    /* =========================================
+       5. PRESENTATION LAYER (COMPONENTS)
        ========================================= */
 
     class Component {
         constructor(elementId, container) {
             this.el = typeof elementId === 'string' ? document.getElementById(elementId) : elementId;
             this.services = container;
-            if (!this.el) console.warn(`Element not found: ${elementId}`);
+            if (!this.el) console.warn(`Component Root [${elementId}] not found.`);
         }
         mount() {}
         update(state) {}
+        
+        // Helper to safe select
+        $(selector) { return this.el.querySelector(selector); }
+        $$(selector) { return this.el.querySelectorAll(selector); }
     }
 
     class NavbarComponent extends Component {
@@ -796,7 +930,7 @@
             const i18n = this.services.get('i18n');
             
             document.querySelectorAll('[data-i18n^="nav."]').forEach(el => {
-                if(!el.closest('#dashboard')) { // Don't translate dashboard specifically here
+                if(!el.closest('#dashboard')) { 
                     el.textContent = i18n.t(el.getAttribute('data-i18n'));
                 }
             });
@@ -823,7 +957,8 @@
             });
         }
 
-        async update(state) {
+        update(state) {
+            // Update Filter Styles
             const i18n = this.services.get('i18n');
             document.querySelectorAll('.filter-btn').forEach(btn => {
                 const isActive = btn.dataset.filter === state.filter;
@@ -835,8 +970,14 @@
                 if (trans !== key) btn.textContent = trans;
             });
 
+            // Get fresh data from Repository (Local Storage)
             const repo = this.services.get('repo');
-            const restaurants = repo.filterByType(state.filter);
+            let restaurants = repo.getAll();
+            
+            if (state.filter !== 'all') {
+                restaurants = restaurants.filter(r => r.type === state.filter);
+            }
+            
             this.renderGrid(restaurants);
         }
 
@@ -890,7 +1031,8 @@
                 `;
             }).join('');
             
-            if (window.lucide) window.lucide.createIcons();
+            // Performance Optimization: Only scan grid for icons
+            if (window.lucide) window.lucide.createIcons({ root: this.grid });
         }
     }
 
@@ -902,9 +1044,6 @@
                 const translation = i18n.t(el.getAttribute('data-i18n'));
                 if (typeof translation === 'string' && el.children.length === 0) {
                     el.textContent = translation;
-                } else if(el.querySelector('span') && typeof translation === 'string') {
-                    // Specific fix for buttons with icons
-                    // Not overriding HTML structure
                 }
             });
             const title = i18n.t('meta.title');
@@ -914,7 +1053,7 @@
 
     class DashboardComponent extends Component {
         mount(store) {
-            // Event Delegation for Dashboard Actions
+            // Efficient Event Delegation
             this.el.addEventListener('click', (e) => {
                 const auth = this.services.get('auth');
                 const repo = this.services.get('repo');
@@ -922,30 +1061,21 @@
 
                 if (!user) return;
 
-                // Logout
+                // Handle Actions
                 if(e.target.closest('.js-logout')) {
                     auth.logout();
-                    store.commit({ view: 'home' }); // Navigate home
-                    // Force refresh grid to show un-logged state if needed
+                    store.commit({ view: 'home' });
                 }
 
-                // Capacity Minus
-                if(e.target.closest('.js-cap-minus')) {
-                    repo.updateCapacity(user.id, -1);
-                    store.commit({}); // Trigger re-render
-                }
+                const handleCapUpdate = (change) => {
+                    repo.updateCapacity(user.id, change);
+                    // Force system-wide update using timestamp
+                    store.commit({ _lastUpdate: Date.now() }); 
+                };
 
-                // Capacity Plus
-                if(e.target.closest('.js-cap-plus')) {
-                    repo.updateCapacity(user.id, 1);
-                    store.commit({}); // Trigger re-render
-                }
-
-                // Guest Arrived (Shortcut for minus)
-                if(e.target.closest('.js-guest-arrived')) {
-                    repo.updateCapacity(user.id, -1);
-                    store.commit({}); // Trigger re-render
-                }
+                if(e.target.closest('.js-cap-minus')) handleCapUpdate(-1);
+                if(e.target.closest('.js-cap-plus')) handleCapUpdate(1);
+                if(e.target.closest('.js-guest-arrived')) handleCapUpdate(-1);
             });
         }
 
@@ -957,14 +1087,22 @@
 
             if (user) {
                 const r = repo.getById(user.id);
-                document.getElementById('dash-restaurant-name').textContent = r.name + " Dashboard";
-                document.getElementById('dash-capacity-count').textContent = r.capacity;
+                // Safe DOM updates
+                const nameEl = document.getElementById('dash-restaurant-name');
+                const countEl = document.getElementById('dash-capacity-count');
                 
-                // Update Translations inside dashboard
-                document.querySelector('[data-i18n="dash.capacity"]').textContent = i18n.t("dash.capacity");
-                document.querySelector('[data-i18n="dash.status"]').textContent = i18n.t("dash.status");
-                const btnSpan = document.querySelector('[data-i18n="dash.guestBtn"]');
-                if(btnSpan) btnSpan.textContent = i18n.t("dash.guestBtn");
+                if(nameEl) nameEl.textContent = r.name + " Dashboard";
+                if(countEl) countEl.textContent = r.capacity;
+                
+                // Translations
+                const t = (sel, key) => {
+                    const el = document.querySelector(sel);
+                    if(el) el.textContent = i18n.t(key);
+                };
+                
+                t('[data-i18n="dash.capacity"]', "dash.capacity");
+                t('[data-i18n="dash.status"]', "dash.status");
+                t('[data-i18n="dash.guestBtn"]', "dash.guestBtn");
             }
         }
     }
@@ -993,18 +1131,14 @@
             if (form) {
                 form.addEventListener('submit', async (e) => {
                     e.preventDefault();
-                    const repo = this.services.get('repo');
-                    // Send to backend
-                    await repo.submitApplication(new FormData(form));
+                    // Mock backend latency
+                    await new Promise(r => setTimeout(r, 500));
                     modal.classList.remove('hidden');
                 });
             }
 
             if (loginForm) {
-                // Clear error on input
-                loginForm.addEventListener('input', () => {
-                    loginError.classList.add('hidden');
-                });
+                loginForm.addEventListener('input', () => loginError.classList.add('hidden'));
 
                 loginForm.addEventListener('submit', (e) => {
                     e.preventDefault();
@@ -1020,13 +1154,12 @@
                         loginForm.reset();
                     } else {
                         loginError.classList.remove('hidden');
-                        // Ensure icon renders if it wasn't visible before (though usually fine)
                         if (window.lucide) window.lucide.createIcons();
                     }
                 });
             }
 
-            // Close Modals
+            // Close Modals Delegation
             document.body.addEventListener('click', (e) => {
                 if (e.target.closest('.js-close-modal')) {
                     modal.classList.add('hidden');
@@ -1035,37 +1168,54 @@
                 }
                 if (e.target.closest('.js-close-login')) {
                     loginModal.classList.add('hidden');
-                    loginError.classList.add('hidden'); // Reset error state on close
+                    loginError.classList.add('hidden');
                     if(loginForm) loginForm.reset();
                 }
             });
         }
     }
 
+    /* =========================================
+       6. BOOTSTRAPPER
+       ========================================= */
+
     class App {
         static async init() {
+            console.log('Initializing The Second Seat App v3.0 [Architecture: Clean]');
+
+            // 1. Setup DI Container & Infrastructure
             const container = new ServiceContainer();
+            container.register('storage', new StorageAdapter());
             container.register('i18n', new I18nService());
-            container.register('repo', new RestaurantService());
+            
+            // 2. Setup Domain/App Layer
+            // Inject Storage into Repo for persistence
+            container.register('repo', new RestaurantRepository(container.get('storage')));
             container.register('auth', new AuthService());
 
+            // 3. Logic: Auto Language Detection
             const detectUserLanguage = () => {
-                const h = window.location.hostname;
-                if (h.includes('ikincisandalye')) return 'tr';
-                if (h.includes('derzweitestuhl')) return 'de';
-                if (h.includes('thesecondstool')) return 'en';
-                const lang = navigator.language || navigator.userLanguage; 
-                if (lang.startsWith('tr')) return 'tr';
-                if (lang.startsWith('de')) return 'de';
-                return 'en';
+                const hostname = window.location.hostname;
+                if (hostname.includes(CONFIG.DOMAINS.TR)) return 'tr';
+                if (hostname.includes(CONFIG.DOMAINS.DE)) return 'de';
+                if (hostname.includes(CONFIG.DOMAINS.EN)) return 'en';
+                
+                const browserLang = navigator.language || navigator.userLanguage; 
+                const shortCode = browserLang.split('-')[0];
+                return CONFIG.SUPPORTED_LANGS.includes(shortCode) ? shortCode : CONFIG.DEFAULT_LANG;
             };
 
+            const initialLang = detectUserLanguage();
+
+            // 4. Setup State
             const store = new ReactiveStore({
-                lang: detectUserLanguage(),
+                lang: initialLang,
                 filter: 'all',
-                view: 'home' // State now controls view
+                view: 'home',
+                _lastUpdate: Date.now() // Timestamp for forcing refreshes
             });
 
+            // 5. Setup Presentation (Components)
             const components = [
                 new NavbarComponent('navbar', container),
                 new DirectoryComponent('directory', container),
@@ -1077,13 +1227,15 @@
             const router = new Router();
             router.init(store);
 
+            // 6. Mount
             components.forEach(c => c.mount(store));
 
+            // 7. Reactivity Loop
             store.on('stateChange', ({ key, value, state }) => {
                 if (key === 'lang') container.get('i18n').setLanguage(value);
                 
-                // Handle View Switching via State
                 if (key === 'view') {
+                    // Optimized View Switching
                     document.querySelectorAll('.page-section').forEach(el => {
                         el.classList.add('hidden');
                         el.classList.remove('fade-in');
@@ -1091,20 +1243,26 @@
                     const target = document.getElementById(value);
                     if (target) {
                         target.classList.remove('hidden');
-                        target.classList.add('fade-in');
+                        // Small delay to allow display:block to apply before animation
+                        requestAnimationFrame(() => target.classList.add('fade-in'));
                         window.scrollTo(0, 0);
                     }
                     document.getElementById('mobile-menu').classList.add('hidden');
                 }
 
+                // Update all components
                 components.forEach(c => c.update(state));
             });
 
-            // Initial Hydration
+            // 8. Ignition
             store.commit({}); 
-            container.get('i18n').setLanguage(store.get().lang);
+            container.get('i18n').setLanguage(initialLang);
             components.forEach(c => c.update(store.get()));
+            
+            // Initial Icon Render
             if (window.lucide) window.lucide.createIcons();
+
+            console.log('App Ready.');
         }
     }
 
