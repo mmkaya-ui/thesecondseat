@@ -1138,7 +1138,12 @@
             }
 
             if (loginForm) {
-                loginForm.addEventListener('input', () => loginError.classList.add('hidden'));
+                // Performance Fix: Only touch DOM if error is actually visible
+                loginForm.addEventListener('input', () => {
+                    if (!loginError.classList.contains('hidden')) {
+                        loginError.classList.add('hidden');
+                    }
+                });
 
                 loginForm.addEventListener('submit', (e) => {
                     e.preventDefault();
@@ -1154,7 +1159,9 @@
                         loginForm.reset();
                     } else {
                         loginError.classList.remove('hidden');
-                        if (window.lucide) window.lucide.createIcons();
+                        // REMOVED: window.lucide.createIcons() call.
+                        // Optimization: Icons inside the error message are already rendered in the DOM.
+                        // We just toggle visibility via CSS, no need to re-scan the entire document.
                     }
                 });
             }
